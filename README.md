@@ -324,7 +324,7 @@ The repository includes a 4K wallpaper:
 
 ```text
 wallpaper/
-└── trafalgar-law-3840x2160-18362.jpg
+└──  545224.jpg   767599.jpg   i-love-south-africa1920x1080.jpg   peakpx.jpg
 ```
 
 ---
