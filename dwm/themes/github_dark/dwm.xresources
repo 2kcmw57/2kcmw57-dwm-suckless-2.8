@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #00141d
+dwm.normfgcolor:     #FFFFFF
+dwm.normbordercolor: #1a1a1a
+dwm.selbgcolor:      #b3e5fc
+dwm.selfgcolor:      #1a1a1a
+dwm.selbordercolor:  #4fc3f7
+
+! st base
+st.background:  #00141d
+st.foreground:  #FFFFFF
+st.cursorColor: #b3e5fc
+
+! st ANSI palette (GitHub Dark)
+st.color0:  #0d1117
+st.color1:  #ff7b72
+st.color2:  #3fb950
+st.color3:  #d29922
+st.color4:  #4fc3f7
+st.color5:  #bc8cff
+st.color6:  #39c5cf
+st.color7:  #b1bac4
+st.color8:  #6e7681
+st.color9:  #ffa198
+st.color10: #56d364
+st.color11: #e3b341
+st.color12: #79c0ff
+st.color13: #d2a8ff
+st.color14: #56d4dd
+st.color15: #f0f6fc

@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #2B3339
+dwm.normfgcolor:     #D5C9AB
+dwm.normbordercolor: #414b50
+dwm.selbgcolor:      #83c092
+dwm.selfgcolor:      #2B3339
+dwm.selbordercolor:  #83c092
+
+! st base
+st.background:  #2B3339
+st.foreground:  #D5C9AB
+st.cursorColor: #D5C9AB
+
+! st ANSI palette (Everforest Dark)
+st.color0:  #4b565c
+st.color1:  #e67e80
+st.color2:  #a7c080
+st.color3:  #dbbc7f
+st.color4:  #7fbbb3
+st.color5:  #d699b6
+st.color6:  #83c092
+st.color7:  #d3c6aa
+st.color8:  #5d6b73
+st.color9:  #e67e80
+st.color10: #a7c080
+st.color11: #dbbc7f
+st.color12: #7fbbb3
+st.color13: #d699b6
+st.color14: #83c092
+st.color15: #d3c6aa

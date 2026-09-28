@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #1F1F28
+dwm.normfgcolor:     #DCD7BA
+dwm.normbordercolor: #2A2A37
+dwm.selbgcolor:      #7e9cd8
+dwm.selfgcolor:      #1F1F28
+dwm.selbordercolor:  #7e9cd8
+
+! st base
+st.background:  #1F1F28
+st.foreground:  #DCD7BA
+st.cursorColor: #DCD7BA
+
+! st ANSI palette (Kanagawa Wave)
+st.color0:  #16161D
+st.color1:  #C34043
+st.color2:  #76946A
+st.color3:  #C0A36E
+st.color4:  #7E9CD8
+st.color5:  #957FB8
+st.color6:  #6A9589
+st.color7:  #C8C093
+st.color8:  #727169
+st.color9:  #E82424
+st.color10: #98BB6C
+st.color11: #E6C384
+st.color12: #7FB4CA
+st.color13: #938AA9
+st.color14: #7AA89F
+st.color15: #DCD7BA

@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #272822
+dwm.normfgcolor:     #f8f8f2
+dwm.normbordercolor: #3e3d32
+dwm.selbgcolor:      #f92672
+dwm.selfgcolor:      #272822
+dwm.selbordercolor:  #66d9ef
+
+! st base
+st.background:  #272822
+st.foreground:  #f8f8f2
+st.cursorColor: #f8f8f2
+
+! st ANSI palette (Monokai)
+st.color0:  #272822
+st.color1:  #f92672
+st.color2:  #a6e22e
+st.color3:  #f4bf75
+st.color4:  #66d9ef
+st.color5:  #ae81ff
+st.color6:  #a1efe4
+st.color7:  #f8f8f2
+st.color8:  #75715e
+st.color9:  #f92672
+st.color10: #a6e22e
+st.color11: #f4bf75
+st.color12: #66d9ef
+st.color13: #ae81ff
+st.color14: #a1efe4
+st.color15: #f9f8f5

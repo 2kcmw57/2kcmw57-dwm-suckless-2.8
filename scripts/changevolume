@@ -1,0 +1,130 @@
+```bash
+#!/usr/bin/env bash
+
+# ============================================================
+# KCMW changevolume
+# Volume control with Dunst OSD
+#
+# Usage:
+#   changevolume up
+#   changevolume down
+#   changevolume mute
+# ============================================================
+
+set -u
+
+VOL_STEP=2
+NOTIFY_ID="changevolume"
+
+# ------------------------------------------------------------
+# Dependency check
+# ------------------------------------------------------------
+
+if ! command -v pamixer >/dev/null 2>&1; then
+    notify-send \
+        -a "changevolume" \
+        -u critical \
+        "Volume Control" \
+        "pamixer is not installed."
+    exit 1
+fi
+
+if ! command -v notify-send >/dev/null 2>&1; then
+    echo "Error: notify-send is not installed." >&2
+    exit 1
+fi
+
+# ------------------------------------------------------------
+# Get volume icon
+# ------------------------------------------------------------
+
+get_icon() {
+    local volume="$1"
+    local muted
+
+    muted="$(pamixer --get-mute 2>/dev/null)"
+
+    if [[ "$muted" == "true" ]]; then
+        echo "audio-volume-muted"
+    elif (( volume <= 30 )); then
+        echo "audio-volume-low"
+    elif (( volume <= 70 )); then
+        echo "audio-volume-medium"
+    else
+        echo "audio-volume-high"
+    fi
+}
+
+# ------------------------------------------------------------
+# Send volume notification
+# ------------------------------------------------------------
+
+notify_volume() {
+    local volume
+    local icon
+
+    volume="$(pamixer --get-volume 2>/dev/null)" || return 1
+    icon="$(get_icon "$volume")"
+
+    notify-send \
+        -a "changevolume" \
+        -u low \
+        -h "string:x-canonical-private-synchronous:$NOTIFY_ID" \
+        -h "int:value:$volume" \
+        -i "$icon" \
+        -t 2000 \
+        "Volume" \
+        "${volume}%"
+}
+
+# ------------------------------------------------------------
+# Mute notification
+# ------------------------------------------------------------
+
+notify_mute() {
+    notify-send \
+        -a "changevolume" \
+        -u low \
+        -h "string:x-canonical-private-synchronous:$NOTIFY_ID" \
+        -h "int:value:0" \
+        -i "audio-volume-muted" \
+        -t 2000 \
+        "Volume" \
+        "Muted"
+}
+
+# ------------------------------------------------------------
+# Volume controls
+# ------------------------------------------------------------
+
+case "${1:-}" in
+
+    up)
+        pamixer --unmute
+        pamixer --increase "$VOL_STEP" --allow-boost
+        notify_volume
+        ;;
+
+    down)
+        pamixer --unmute
+        pamixer --decrease "$VOL_STEP" --allow-boost
+        notify_volume
+        ;;
+
+    mute)
+        pamixer --toggle-mute
+
+        if [[ "$(pamixer --get-mute)" == "true" ]]; then
+            notify_mute
+        else
+            notify_volume
+        fi
+        ;;
+
+    *)
+        echo "Usage: $0 {up|down|mute}"
+        exit 1
+        ;;
+
+esac
+```

@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #232634
+dwm.normfgcolor:     #c6d0f5
+dwm.normbordercolor: #51576d
+dwm.selbgcolor:      #ca9ee6
+dwm.selfgcolor:      #232634
+dwm.selbordercolor:  #8caaee
+
+! st base
+st.background:  #232634
+st.foreground:  #c6d0f5
+st.cursorColor: #f2d5cf
+
+! st ANSI palette (Catppuccin Frappe)
+st.color0:  #51576d
+st.color1:  #e78284
+st.color2:  #a6d189
+st.color3:  #e5c890
+st.color4:  #8caaee
+st.color5:  #f4b8e4
+st.color6:  #81c8be
+st.color7:  #b5bfe2
+st.color8:  #626880
+st.color9:  #e78284
+st.color10: #a6d189
+st.color11: #e5c890
+st.color12: #8caaee
+st.color13: #f4b8e4
+st.color14: #81c8be
+st.color15: #a5adce

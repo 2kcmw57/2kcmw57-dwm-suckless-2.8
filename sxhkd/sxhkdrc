@@ -1,0 +1,132 @@
+# === LAUNCH ===
+
+# Show Keybinding Help Script
+super + slash
+	~/.config/suckless/scripts/help
+
+# === WINDOW ===
+
+# DWM Layout Menu
+super + shift + l
+	~/.config/suckless/scripts/dwm-layout-menu.sh
+
+# DWM Theme Switcher
+super + shift + t
+	~/.config/suckless/scripts/dwm-thememenu
+
+# Tab attach: focused window into a tab group on this monitor
+super + w
+	~/.config/suckless/dwm/dwmtabs attach
+
+# Tab detach: focused window out of its tab group
+super + shift + w
+	~/.config/suckless/dwm/dwmtabs detach
+
+# === MEDIA & BRIGHTNESS ===
+
+# Increase Volume (Custom Script)
+super + F12
+	 ~/.local/bin/changevolume up
+
+# Decrease Volume (Custom Script)
+super + F11
+	 ~/.local/bin/changevolume down
+
+# Toggle Mute (Custom Script)
+super + F10
+	 ~/.local/bin/changevolume mute
+
+# Dedicated Key for Volume Up
+XF86AudioRaiseVolume
+	 	~/.local/bin/changevolume up
+# === LAUNCH ===
+
+super + slash
+	~/.local/bin/help
+
+
+# === WINDOW ===
+
+super + shift + l
+	~/.local/bin/dwm-layout-menu.sh
+
+super + shift + t
+	~/.local/bin/dwm-thememenu
+
+super + w
+	~/.local/bin/dwmtabs attach
+
+super + shift + w
+	~/.local/bin/dwmtabs detach
+
+
+# === MEDIA & BRIGHTNESS ===
+
+# Volume Up
+super + F12
+	~/.local/bin/changevolume up
+
+# Volume Down
+super + F11
+	~/.local/bin/changevolume down
+
+# Mute
+super + F10
+	~/.local/bin/changevolume mute
+
+# Physical Volume Up
+XF86AudioRaiseVolume
+	~/.local/bin/changevolume up
+
+# Physical Volume Down
+XF86AudioLowerVolume
+	~/.local/bin/changevolume down
+
+# Physical Mute
+XF86AudioMute
+	~/.local/bin/changevolume mute
+
+# Brightness Up
+XF86MonBrightnessUp
+	xbacklight +10
+
+# Brightness Down
+XF86MonBrightnessDown
+	xbacklight -10
+
+
+# === SYSTEM ===
+
+# Reload sxhkd
+super + Escape
+	pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Reloaded config'
+
+# Power
+super + End
+	~/.local/bin/power
+# Dedicated Key for Volume Down
+XF86AudioLowerVolume
+	 ~/.local/bin/changevolume down
+
+# Dedicated Key for Mute
+XF86AudioMute
+	 ~/.local/bin/changevolume mute
+
+# Increase Screen Brightness
+XF86MonBrightnessUp
+	xbacklight +10
+
+# Decrease Screen Brightness
+XF86MonBrightnessDown
+	xbacklight -10
+
+
+# === SYSTEM ===
+
+# Reload sxhkd (Hotkey Daemon)
+super + Escape
+	pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Reloaded config'
+
+# Power Off/Reboot
+super + End
+	~/.config/suckless/scripts/power

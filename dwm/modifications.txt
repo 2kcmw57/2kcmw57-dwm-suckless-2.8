@@ -1,0 +1,515 @@
+Custom modifications to dwm beyond what is applied from patches/
+================================================================
+
+These are direct edits to dwm.c, vanitygaps.c, and config.def.h/config.h
+that are NOT represented as standalone .diff files in patches/. If you
+ever rebase against upstream dwm, these need to be re-applied by hand.
+
+Backup of the pre-cfact working state:
+  backup-20260503-125303-working-columns/
+
+
+--------------------------------------------------------------------------
+1. columnlayout  (vanitygaps.c)
+--------------------------------------------------------------------------
+Layout that arranges all clients as side-by-side columns spanning the
+full monitor height. Column widths are proportional to each client's
+cfact (see #3). Ignores nmaster and mfact.
+
+  - vanitygaps.c: prototype + definition (search for "columnlayout")
+  - config.def.h / config.h: present in the layouts[] table with icon
+
+
+--------------------------------------------------------------------------
+2. Window-following toggle  (togglefollow / wfsymbol / WFACTIVE)
+--------------------------------------------------------------------------
+When enabled, sending a window to another tag/monitor follows it. An
+indicator (> or v) shows state on the bar next to the layout symbol.
+
+  - dwm.c: ClkFollowSymbol enum, wfsymbol[2] on Monitor, togglefollow
+    function, draw call in drawbar, view/tagmon dispatch, init in
+    createmon
+  - config.def.h / config.h: WFACTIVE/WFINACTIVE/WFDEFAULT macros,
+    Mod+n keybinding, ClkFollowSymbol button
+
+
+--------------------------------------------------------------------------
+3. Per-client size factor  (cfact field + setcfact)
+--------------------------------------------------------------------------
+Adds a per-client cfact (default 1.0, range 0.25..4.0) used by all
+vanitygaps layouts and by columnlayout to weight individual client
+sizes. Not directly user-bound; reached via resizefocused (#4).
+
+  - dwm.c: cfact in struct Client, setcfact prototype + function,
+    cfact = 1.0 init in manage()
+
+
+--------------------------------------------------------------------------
+4. Layout-aware resize  (resizefocused)
+--------------------------------------------------------------------------
+Single resize keybind that does the right thing per layout:
+  - in columnlayout -> setcfact (per-column resize, i3-style)
+  - elsewhere       -> setmfact (master area resize)
+
+The mfact-style 0.05 step is scaled by 2.0 when dispatched to setcfact
+so the perceived increment is similar across layouts. Tunable in dwm.c
+(the * 2.0f literal in resizefocused).
+
+  - dwm.c: resizefocused prototype + function
+  - config.def.h / config.h: Mod+h / Mod+l bindings
+
+
+--------------------------------------------------------------------------
+5. Reset facts  (resetfacts)
+--------------------------------------------------------------------------
+Resets every tiled client's cfact to 1.0 and the monitor's mfact to
+the default constant. Re-equalizes columns and restores the master
+split in one shot.
+
+  - dwm.c: resetfacts prototype + function
+  - config.def.h / config.h: Mod+; binding
+
+
+--------------------------------------------------------------------------
+6. Extended tag set  (12 tags)
+--------------------------------------------------------------------------
+Tags array extended from 9 -> 12. TAGKEYS bindings added for XK_0,
+XK_minus, XK_equal (tags 10, 11, 12). The default Mod+0 view-all and
+Mod+Shift+0 tag-all bindings were removed because they collided with
+tag 10; not rebound elsewhere (use the rofi window switcher, #8).
+
+  - config.def.h / config.h: tags[] array, TAGKEYS for 0/-/=, removed
+    view-all / tag-all bindings, also Shift+Ctrl+1..= layout selectors
+
+
+--------------------------------------------------------------------------
+7. scratchtagwins
+--------------------------------------------------------------------------
+Per-tag scratchpad helper from scratchtagwins.c. Macros
+SCRATCHTAGWIN_RULE / SCRATCHTAGWIN_KEY / SCRATCHTAGWIN are used in
+config.def.h to define scratchtagwin1..9 and bind keys.
+
+  - scratchtagwins.c: included from config.def.h
+
+
+--------------------------------------------------------------------------
+8. Rofi window switcher  (Mod+apostrophe)
+--------------------------------------------------------------------------
+Replacement for view-all-tags. Uses SHCMD so $HOME expands at runtime
+(no hardcoded user path):
+
+  rofi -show window -theme "$HOME/.config/suckless/rofi/window.rasi"
+
+window.rasi @imports config.rasi and overrides only what's window-mode
+specific (currently `listview { columns: 1; }` so entries don't clip).
+
+Tag number is shown via the {w} placeholder in window-format, set in
+~/.config/suckless/rofi/config.rasi (configuration block):
+
+  display-window: "Window:";
+  window-format:  "[ {w} ]  {c}   {t}";
+
+Note: {w} is 0-indexed (dwm tag 1 -> "0", tag 12 -> "11"). For sticky/
+all-tag windows it shows "-1" (0xFFFFFFFF cast to signed).
+
+  - config.def.h: Mod+apostrophe spawn binding (Mod+w was reassigned
+    to dwmtabs attach in sxhkdrc; see §16)
+
+
+--------------------------------------------------------------------------
+9. Per-client _NET_WM_DESKTOP  (extends ewmhtags patch)
+--------------------------------------------------------------------------
+The ewmhtags patch in patches/ sets the global EWMH desktop atoms but
+NOT _NET_WM_DESKTOP per client, which is what rofi actually reads to
+display tag numbers in the window switcher. Custom additions:
+
+  - dwm.c: NetWMDesktop in the netatom enum
+  - dwm.c: XInternAtom("_NET_WM_DESKTOP") in setup
+  - dwm.c: extra XChangeProperty call in setclienttagprop() that
+    writes the lowest set tag bit as the desktop index, or
+    0xFFFFFFFF if the client is on all tags.
+
+setclienttagprop is already called from manage() and from every
+tag-change function, so newly-mapped and re-tagged windows both
+pick it up automatically.
+
+Two compile fixes were also needed in the ewmhtags patch code itself
+against current libX11 / -pedantic:
+  - Cast tags to (char **) in setdesktopnames() because
+    Xutf8TextListToTextProperty wants non-const.
+  - Parenthesize (i+1) in updatecurrentdesktop() to silence
+    operator-precedence warning.
+
+If you ever apply a newer ewmhtags variant that already sets
+_NET_WM_DESKTOP, drop the per-client extension above.
+
+
+--------------------------------------------------------------------------
+10. Keybinding moves to coexist with sxhkd
+--------------------------------------------------------------------------
+sxhkd (~/.config/suckless/sxhkd/sxhkdrc) runs alongside dwm and grabs
+keys at the X level. Where both bound the same chord, sxhkd won and
+the dwm binding was effectively dead. Moves below resolve those:
+
+  Mod+b        sxhkd: firefox-esr      ->  togglebar moved to Mod+Ctrl+b
+  Mod+f        sxhkd: thunar           ->  setlayout(tile) shortcut dropped
+  Mod+d        sxhkd: Discord          ->  incnmaster moved to Mod+Alt+Tab
+                                           (and Mod+Alt+Shift+Tab for -1)
+  Mod+s        sxhkd: flameshot full   ->  togglesticky moved to Mod+y
+  Mod+Shift+b  sxhkd: firefox private  ->  kept in sxhkdrc (no dwm
+                                           collision after togglebar
+                                           moved to Mod+Ctrl+b)
+
+Layout quick-shortcuts that were dropped while at it (redundant with the
+existing Shift+Ctrl+1..= layout selectors):
+
+  Mod+t  setlayout(layouts[0] = dwindle)   removed
+  Mod+f  setlayout(layouts[1] = tile)      removed
+  Mod+m  setlayout(layouts[2] = columns)   removed
+
+Net effect: every layout is reachable via Shift+Ctrl+1..=, the four
+sxhkd launcher keys (b/f/d/s) are uncontested, and dwm's affected
+functions live on uncontested chords.
+
+
+--------------------------------------------------------------------------
+11. Per-rule iscentered  (modifies alwayscenter behavior)
+--------------------------------------------------------------------------
+The alwayscenter patch in patches/ unconditionally centers every new
+window. We extended it so centering is opt-in per rule:
+
+  - dwm.c: int iscentered added to struct Client
+  - dwm.c: int iscentered added to Rule struct
+  - dwm.c: applyrules now copies r->iscentered -> c->iscentered
+  - dwm.c: in manage(), the centering block is wrapped in
+           if (c->iscentered) { ... }
+  - config.def.h: every rule now has an iscentered column (8 fields:
+           class, instance, title, tags, isfloating, iscentered,
+           monitor, scratchkey)
+  - scratchtagwins.c: SCRATCHTAGWIN_RULE macro updated to emit the
+           iscentered field (set to 1 — scratchtagwins float and
+           should center)
+
+Default for unmatched windows is iscentered=0, restoring upstream
+placement (no auto-center).
+
+
+--------------------------------------------------------------------------
+12. Statusallmons toggle wrapper  (discoverability over vanilla)
+--------------------------------------------------------------------------
+The statusallmons patch (in patches/) is normally unconditional. We
+wrapped the behavior behind a config.def.h constant so a future reader
+can grep the patch name and discover its implementation:
+
+  - config.def.h: static const int statusallmons = 1;
+                  /* statusallmons patch: 1 draws status on every
+                     monitor, 0 only on selected */
+  - dwm.c drawbar(): if (m == selmon || statusallmons) { ... }
+                     (vanilla patch had `|| 1` here)
+  - dwm.c updatestatus(): if (statusallmons) loops over all monitors,
+                          else just drawbar(selmon).
+
+Setting statusallmons = 0 reverts to upstream behavior with no wasted
+draws. Single-monitor users are unaffected either way (m == selmon is
+always true with one monitor).
+
+
+--------------------------------------------------------------------------
+13. Xresources color theming  (extends xresources patch)
+--------------------------------------------------------------------------
+The xresources patch in patches/ provides the Xresources read
+infrastructure (load_xresources, resource_load, ResourcePref struct,
+enum resource_type). The upstream patch ships with a hand-written
+config.def.h sample using `normbgcolor`/`normfgcolor`/etc; we kept
+dev's existing `col_gray*` / `col_cyan` / `col_barbie` C variable
+names and mapped them to those semantic Xresources keys instead.
+
+Hand-merge details:
+
+  - drw.h: dropped const from drw_scm_create's clrnames[] parameter
+    (the Xresources patch needs writable strings)
+  - drw.c: matching const drop on the function definition
+  - dwm.c: prototypes for load_xresources / resource_load added
+  - dwm.c: XrmInitialize() + load_xresources() called in main()
+    after checkotherwm() and before setup()
+  - config.def.h: `const` removed from the 6 color vars so xrdb can
+    overwrite them at startup; colors[][3] type changed from
+    `static const char *` to `static char *` to match
+  - config.def.h: ResourcePref resources[] table maps semantic
+    Xresources keys to dwm vars:
+       normbgcolor     -> col_gray1
+       normfgcolor     -> col_gray3
+       normbordercolor -> col_gray4
+       selbgcolor      -> col_cyan
+       selfgcolor      -> col_selfg   (own buffer — see below)
+       selbordercolor  -> col_barbie
+
+Buffer split: a new `col_selfg[]` was added so SchemeSel.fg lives in
+its own char buffer rather than sharing col_gray4 with
+SchemeNorm.border. Themes can now set selfgcolor independently of
+normbordercolor.
+
+Usage workflow for theme switching:
+  1. Write color values to ~/.Xresources, e.g.:
+       dwm.normbgcolor: #00141d
+       dwm.selbgcolor:  #b3e5fc
+  2. `xrdb -merge ~/.Xresources`
+  3. Restart dwm via Mod+Shift+r (preserveonrestart keeps tags/windows)
+
+Also removed: unused `col_gray2` declaration that was carried from an
+older config.
+
+If you want gaps, padding, mfact, etc. to be Xresources-tunable too,
+add them to resources[] and drop their `const` qualifier in
+config.def.h.
+
+
+--------------------------------------------------------------------------
+14. Theme switcher  (dwm-thememenu)
+--------------------------------------------------------------------------
+Rofi-driven theme switcher modeled after the qtile/scripts/thememenu
+in this user's qtile setup. Lives outside dwm itself — uses the
+xresources patch (#13) for color application.
+
+Layout:
+
+  ~/.config/suckless/dwm/themes/<name>/
+    dwm.xresources    # 6 dwm color keys + 3 st base + 16 ANSI st palette
+                      # (st.* keys require st-xresources +
+                      #  st-xresources-signal-reloading patches)
+    theme.conf        # key=value manifest: name, kitty, gtk, icons,
+                      # wallpaper, dunst_* colors
+    colors.rasi       # rofi palette, copied to ~/.config/suckless/rofi/
+                      # (config.rasi / power.rasi / keybinds.rasi are
+                      #  user-owned and @import colors.rasi)
+
+  ~/.config/suckless/scripts/dwm-thememenu
+    Rofi dmenu of available themes. On selection:
+      1. Replace marker-bracketed block (! BEGIN/END dwm-thememenu)
+         in ~/.Xresources with theme's dwm.xresources, run
+         xrdb -load. Markers prevent st.* color keys and comment
+         lines from accumulating across switches; -load (not -merge)
+         ensures keys removed by a theme actually disappear from the
+         resource db. Earlier versions stripped only ^dwm. lines and
+         used xrdb -merge, which let st.* and comment cruft grow the
+         file to ~2000 lines after dozens of switches.
+         Also copies the theme's colors.rasi over rofi's.
+      2. Apply the named kitty scheme via
+         `kitty +kitten themes --cache-age=-1 --reload-in=all` —
+         the kitten writes current-theme.conf, updates kitty.conf's
+         theme block, and SIGUSR1-reloads running kitty windows.
+         Falls back to the manifest's legacy `ghostty` key when no
+         `kitty` key exists (same iTerm2 naming). Fails silently on
+         an unknown scheme name.
+      3. Swap GTK theme + icons in gtk-3.0/settings.ini and
+         ~/.xsettingsd; restart xsettingsd for live-refresh of
+         running GTK apps
+      4. Swap wallpaper (feh + sed in autostart.sh)
+      5. Sed the quoted hex on each `# THEME: dunst_<key>` line of
+         the single shared dunstrc, restart dunst
+      6. Write theme name to ~/.config/suckless/dwm/.current-theme
+      7. pkill -HUP dwm — triggers restartsig handler in dwm,
+         dwm re-execs with preserveonrestart keeping tags/windows;
+         the new dwm reads the just-merged Xresources
+    Running st terminals are not signaled; the st.* palette from
+    dwm.xresources applies to st windows opened after the switch
+    (or reload manually with pkill -USR1 -x st).
+
+  ~/.config/suckless/sxhkd/sxhkdrc
+    super + shift + t   bound to dwm-thememenu
+
+Default theme is the compiled-in github_dark colors. 12 themes ship
+under themes/ (catppuccin, doomone, dracula, everforest, github_dark,
+gruvbox, kanagawa, monokai, moonfly, nord, retro, rose_pine). Add
+more by creating new theme dirs with at least dwm.xresources and
+theme.conf.
+
+Per-app theme strings (kitty, GTK, icon) and wallpaper filenames in
+theme.conf must reference assets that actually exist on the system;
+the script no-ops gracefully when a config file is missing but does
+not validate theme names against installed assets.
+
+
+--------------------------------------------------------------------------
+15. Scratchpad workflow  (single + named slots + window promotion)
+--------------------------------------------------------------------------
+Three layers of scratchpad behavior, all from patches in patches/:
+
+  a) Generic scratchpad (scratchpad-from-patches/scratchtagwins.c):
+       Mod+grave         toggle st titled "scratchpad"
+       Mod+v             toggle st running pulsemixer
+     Add more by copying the pulsemixercmd line in config.def.h:
+       static const char *foocmd[] = { "X", "st", "-t", "foo", "-e", "foo", NULL };
+       (rule entry with scratch key 'X')
+       (keybinding with togglescratch on foocmd)
+     The first arg (single char) is the scratch key — must match the
+     'X' in the matching rule entry. togglescratch spawns the command
+     on first call, then hides/shows the window on subsequent calls.
+
+  b) 9 named scratchtagwin slots (scratchtagwins patch):
+       Mod+Alt+1..9      toggle scratchtagwin slot N
+     Each slot is a tabbed-st container. Pressing the key spawns the
+     container the first time and toggles thereafter. Useful for
+     persistent TUIs (a music player, a notes terminal, etc.) you
+     want to summon-and-dismiss with one chord.
+
+  c) Promote any window to a scratchpad slot:
+       Mod+Alt+Shift+1..9   make focused window into scratchtagwin N
+       Mod+Alt+Shift+s      make focused window into the 'scratchpad'
+       Mod+Alt+Shift+`      clear scratch state from focused window
+                            (paired with Mod+`, the scratchpad toggle;
+                            moved off Mod+Alt+Shift+0 which collides
+                            with defaultgaps)
+     This is the killer feature: open Discord, Thunar, calculator,
+     anything floating, then claim a slot. From then on the slot key
+     toggles it — no extra config or wrapper script.
+
+Recommendation for users adding their own apps: pick (a) when you
+want a launcher binding that's also a hide/show toggle for a
+specific app (pulsemixer-style); pick (c) when you want flexibility
+without writing config — promote whatever you happen to have open.
+
+
+--------------------------------------------------------------------------
+16. dwmtabs  (C tool for tabbed-container reparenting)
+--------------------------------------------------------------------------
+Native libX11 + Xinerama tool that replaces a 120-line bash script
+relying on xdotool, xprop, xrandr, xwininfo, and awk. ~250 lines of
+C, single binary, no shell dependencies.
+
+Layout:
+
+  ~/.config/suckless/dwm/dwmtabs.c    Source
+  ~/.config/suckless/dwm/dwmtabs      Binary (built by `make`)
+
+Subcommands:
+
+  dwmtabs attach   Reparent the focused window into a "dwm-tabbed"
+                   container on the same monitor as that window.
+                   Spawns a new tabbed -d -c -n dwm-tabbed if no
+                   container exists on this monitor.
+
+  dwmtabs detach   Reparent the focused window (or the first child
+                   of the focused container) back to root. Kills
+                   the container if it's now empty.
+
+  dwmtabs create   Spawn an empty container, print its window id.
+                   Not bound by default.
+
+How it finds the focused window:
+  Reads _NET_ACTIVE_WINDOW from root (the WM-managed top-level),
+  not XGetInputFocus (which can return a Gtk widget inside an app).
+
+How it identifies containers:
+  Matches WM_CLASS against "dwm-tabbed" in either the instance
+  (res_name, what tabbed -n sets) or class (res_class) field.
+
+Per-monitor logic:
+  XineramaQueryScreens to find which screen contains the focused
+  window's center, then filters tabbed containers to that screen.
+  Falls back to full root display if Xinerama is unavailable.
+
+Build wired into the dwm Makefile (`make` produces both `dwm` and
+`dwmtabs`). Linked with -lX11 -lXinerama. Compile manually with:
+
+  cc -std=c99 -pedantic -Wall -Os -D_DEFAULT_SOURCE \
+     -o dwmtabs dwmtabs.c -lX11 -lXinerama
+
+Bindings (sxhkd):
+
+  super + w           ~/.config/suckless/dwm/dwmtabs attach
+  super + shift + w   ~/.config/suckless/dwm/dwmtabs detach
+
+Mnemonic: "w" for "window into / out of the tab group". Earlier
+revisions used super+t chord, then super+alt+plus/minus; both were
+dropped — the chord lockout felt unresponsive, and the alt+plus combo
+required an awkward shift reach. Plain super+w / super+shift+w is the
+current binding (sxhkdrc § WINDOW).
+
+The `create` subcommand still exists in the binary but isn't bound
+(attach auto-creates a container if none exists, so it's redundant).
+
+Inside a tab container, tabbed's own keybinds drive tab navigation.
+tabbed's MODKEY is set to Alt (Mod1Mask) in tabbed/config.def.h so it
+doesn't collide with dwm's Super bindings:
+  Alt+Tab / Alt+Shift+Tab   next / previous tab
+  Alt+Ctrl+Tab              last (most-recent) tab
+  Alt+1..0                  jump to tab N
+  Alt+Shift+j / k           move current tab left / right
+  Alt+q                     close current tab
+  F11                       fullscreen the container
+
+The previous bash version (suckless/scripts/dwm-tabs) was removed in
+the 2026-05 dev → main merge. Git history has it if you need to fall
+back: `git log -- suckless/scripts/dwm-tabs`.
+
+
+--------------------------------------------------------------------------
+17. st xresources + signal-reloading  (live theme reload for st)
+--------------------------------------------------------------------------
+Two st patches applied (live in ~/.config/suckless/st/patches/):
+
+  st-xresources-20200604-9ba7ecf.diff
+    st reads colors/font/etc from ~/.Xresources at startup. Without
+    this, st has compiled-in colors and ignores xrdb entirely. We
+    used the 2020 version (not the newer 2023 rewrite) because the
+    signal-reloading patch is built against this older API.
+
+  st-xresources-signal-reloading-20220407-ef05519.diff
+    Adds an SIGUSR1 handler (reload() -> xrdb_load()) so st re-reads
+    Xresources live. Required one hand-merge: hunk #3 (the
+    `signal(SIGUSR1, reload);` line in main()) failed forward and
+    was added manually after `XSetLocaleModifiers("");`. Hunk #1
+    (the Xresource.h include) was already present from xresources;
+    safe to skip.
+
+The theme switcher (#14) no longer signals st; running st windows
+keep their colors until reloaded manually with pkill -USR1 -x st
+(new st windows pick up the merged palette at startup). The -x is
+required — without it the regex match also hits other "st"-substring
+processes (dunst, slstatus, systemd-*), terminating them.
+
+Each theme dir's dwm.xresources contains:
+  - 6 dwm.* keys (normbgcolor, normfgcolor, normbordercolor,
+    selbgcolor, selfgcolor, selbordercolor)
+  - 3 st.* base keys (background, foreground, cursorColor)
+  - 16 st.color0..15 ANSI palette entries
+
+Ligatures patch was attempted but not applied — conflicts with the
+font2 patch (both rewrite xmakeglyphfontspecs). Kept font2 because
+its emoji/CJK fallback is more universally valuable than coding-font
+ligatures. The .diff sits at the st root for future hand-merging.
+
+
+--------------------------------------------------------------------------
+patches/ directory contents
+--------------------------------------------------------------------------
+2026-05-15 audit: patches/ trimmed from 25 -> 21 .diff files. Every
+remaining file is applied somewhere in dwm.c / config.def.h (verified
+by grepping for each patch's distinguishing symbols). Removed:
+
+  dwm-focusedontop-6.6.diff
+      adds focusedontoptiled / raiseclient / Client.alwaysontop;
+      none of those symbols exist in source, rules table has no
+      alwaysontop column.
+  dwm-maximize_vert_horz-20160731-56a31dc.diff
+      adds togglemaximize / toggleverticalmax / togglehorizontalmax
+      plus ismax / wasfloating on Client; none present.
+  dwm-fullscreen-6.2.diff
+      superseded by dwm-fullscreen-20260112-f4fdaff.diff (the 2026
+      variant's pertag->ltidxs toggle is what's in dwm.c).
+  dwm-status2d-systray-6.4.diff
+      superseded by dwm-status2d-barpadding-systray-20241014-b663875.diff
+      (the barpadding flavor with vertpad/sidepad is what's in dwm.c).
+
+If you want any of these back, fetch from suckless.org/patches rather
+than restoring stale local copies.
+
+
+--------------------------------------------------------------------------
+Workflow note
+--------------------------------------------------------------------------
+The Makefile regenerates config.h from config.def.h when config.h is
+missing. Standard workflow: edit config.def.h only; remove config.h
+before remake to pick up changes. Avoid editing config.h directly to
+keep config.def.h as the single source of truth.

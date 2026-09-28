@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #282c34
+dwm.normfgcolor:     #bbc2cf
+dwm.normbordercolor: #3f444a
+dwm.selbgcolor:      #51afef
+dwm.selfgcolor:      #282c34
+dwm.selbordercolor:  #51afef
+
+! st base
+st.background:  #282c34
+st.foreground:  #bbc2cf
+st.cursorColor: #bbc2cf
+
+! st ANSI palette (Doom One)
+st.color0:  #282c34
+st.color1:  #ff6c6b
+st.color2:  #98be65
+st.color3:  #ecbe7b
+st.color4:  #51afef
+st.color5:  #c678dd
+st.color6:  #46d9ff
+st.color7:  #bbc2cf
+st.color8:  #5b6268
+st.color9:  #ff6c6b
+st.color10: #98be65
+st.color11: #ecbe7b
+st.color12: #51afef
+st.color13: #c678dd
+st.color14: #46d9ff
+st.color15: #ffffff

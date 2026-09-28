@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #232136
+dwm.normfgcolor:     #e0def4
+dwm.normbordercolor: #2a273f
+dwm.selbgcolor:      #c4a7e7
+dwm.selfgcolor:      #232136
+dwm.selbordercolor:  #c4a7e7
+
+! st base
+st.background:  #232136
+st.foreground:  #e0def4
+st.cursorColor: #c4a7e7
+
+! st ANSI palette (Rose Pine Moon)
+st.color0:  #393552
+st.color1:  #eb6f92
+st.color2:  #3e8fb0
+st.color3:  #f6c177
+st.color4:  #9ccfd8
+st.color5:  #c4a7e7
+st.color6:  #ea9a97
+st.color7:  #e0def4
+st.color8:  #6e6a86
+st.color9:  #eb6f92
+st.color10: #3e8fb0
+st.color11: #f6c177
+st.color12: #9ccfd8
+st.color13: #c4a7e7
+st.color14: #ea9a97
+st.color15: #e0def4

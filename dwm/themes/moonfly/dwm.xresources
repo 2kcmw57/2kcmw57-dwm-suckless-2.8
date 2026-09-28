@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #080808
+dwm.normfgcolor:     #b2b2b2
+dwm.normbordercolor: #323437
+dwm.selbgcolor:      #80a0ff
+dwm.selfgcolor:      #080808
+dwm.selbordercolor:  #80a0ff
+
+! st base
+st.background:  #080808
+st.foreground:  #b2b2b2
+st.cursorColor: #b2b2b2
+
+! st ANSI palette (Moonfly)
+st.color0:  #323437
+st.color1:  #ff5454
+st.color2:  #8cc85f
+st.color3:  #e3c78a
+st.color4:  #80a0ff
+st.color5:  #ff5189
+st.color6:  #79dac8
+st.color7:  #c6c6c6
+st.color8:  #949494
+st.color9:  #ff5454
+st.color10: #8cc85f
+st.color11: #e3c78a
+st.color12: #80a0ff
+st.color13: #ff5189
+st.color14: #79dac8
+st.color15: #c6c6c6

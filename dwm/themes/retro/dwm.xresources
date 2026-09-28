@@ -1,0 +1,30 @@
+! dwm colors
+dwm.normbgcolor:     #160B00
+dwm.normfgcolor:     #DE7B1B
+dwm.normbordercolor: #2A1200
+dwm.selbgcolor:      #FF8E1F
+dwm.selfgcolor:      #160B00
+dwm.selbordercolor:  #FF8E1F
+
+! st base
+st.background:  #160B00
+st.foreground:  #DE7B1B
+st.cursorColor: #FF8E1F
+
+! st ANSI palette (Retro — orange/amber theme)
+st.color0:  #160B00
+st.color1:  #C26100
+st.color2:  #DE7B1B
+st.color3:  #FF7F00
+st.color4:  #663300
+st.color5:  #A35100
+st.color6:  #FF8E1F
+st.color7:  #FFAA44
+st.color8:  #2A1200
+st.color9:  #E07000
+st.color10: #FF8E1F
+st.color11: #FFAA44
+st.color12: #663300
+st.color13: #C26100
+st.color14: #DE7B1B
+st.color15: #FFC880
