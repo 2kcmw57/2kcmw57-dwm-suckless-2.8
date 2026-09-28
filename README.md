@@ -382,20 +382,20 @@ Ubuntu26.04.sh
 
 The repository includes installation scripts for several Linux distributions.
 
+### Fedora 44
 ```bash
-Fedora 44
 chmod +x Fedora44.sh
 ./Fedora44.sh
 ```
 
+### Ubuntu 26.04
 ```bash
-Ubuntu 26.04
 chmod +x Ubuntu26.04.sh
 ./Ubuntu26.04.sh
 ```
 
+### Arch Linux
 ```bash
-Arch Linux
 chmod +x ArchLinux.sh
 ./ArchLinux.sh
 ```
