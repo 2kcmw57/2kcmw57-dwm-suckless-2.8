@@ -18,7 +18,7 @@
 
 ## 📸 Overview
 
-**2kcmw57-dwm-suckless-2.8** is my personal Linux desktop configuration built around the [Suckless](https://suckless.org/) philosophy.
+**2kcmw57-dwm-suckless-2.8** is my personal Linux desktop configuration made buy me Kgotso Chidera Molefe Wisdom built around the [Suckless](https://suckless.org/) philosophy.
 
 The project combines a customized **DWM** window manager with Suckless utilities and additional desktop tools such as **slstatus, st, tabbed, Rofi, Dunst, Picom and sxhkd**.
 
