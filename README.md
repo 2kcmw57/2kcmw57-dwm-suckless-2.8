@@ -1,3 +1,4 @@
+
 # 2kcmw57-dwm-suckless-2.8
 
 <p align="center">
@@ -376,6 +377,22 @@ Ubuntu26.04.sh
 > Always review an installation script before running it on your system.
 
 ---
+
+⚙️ Setup Scripts
+
+The repository includes installation scripts for several Linux distributions.
+
+Fedora 44
+chmod +x Fedora44.sh
+./Fedora44.sh
+
+Ubuntu 26.04
+chmod +x Ubuntu26.04.sh
+./Ubuntu26.04.sh
+
+Arch Linux
+chmod +x ArchLinux.sh
+./ArchLinux.sh
 
 ## 🔨 Building the Suckless Components
 
