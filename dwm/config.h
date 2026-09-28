@@ -280,7 +280,7 @@ static const Key keys[] = {
 { MODKEY|ShiftMask,   XK_Left,    movestack,       {.i = -1 } },
 
 /* Window State */
-{ 0,                  XK_F11,     fullscreen,      {0} },
+{ 0,                  XK_F11,     togglefullscr,      {0} },
 { MODKEY|ShiftMask,   XK_space,   togglefloating,  {0} }, 
 { MODKEY,             XK_y,       togglesticky,    {0} },
 { MODKEY,             XK_n,       togglefollow,    {0} },

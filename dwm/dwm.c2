@@ -273,7 +273,7 @@ static void setdesktopnames(void);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void setsticky(Client *c, int sticky);
-static void togglefullscr(const Arg *arg);
+static void fullscreen(const Arg *arg);
 static void resizefocused(const Arg *arg);
 static void resetfacts(const Arg *arg);
 static void setcfact(const Arg *arg);
@@ -1978,56 +1978,30 @@ void
 setfullscreen(Client *c, int fullscreen)
 {
 	if (fullscreen && !c->isfullscreen) {
-		/* Save current geometry/state */
-		c->oldstate = c->isfloating;
-		c->oldbw = c->bw;
-		c->oldx = c->x;
-		c->oldy = c->y;
-		c->oldw = c->w;
-		c->oldh = c->h;
-
-		/* Tell applications we're fullscreen */
-		XChangeProperty(dpy, c->win, netatom[NetWMState],
-			XA_ATOM, 32, PropModeReplace,
-			(unsigned char *)&netatom[NetWMFullscreen], 1);
-
+		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
+			PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
 		c->isfullscreen = 1;
-		c->isfloating = 1;
-		c->bw = 0;
-
-		/* Cover the entire physical monitor */
-		XMoveResizeWindow(dpy, c->win,
-			c->mon->mx, c->mon->my,
-			c->mon->mw, c->mon->mh);
-
-		XRaiseWindow(dpy, c->win);
-		setfocus(c);
-	} else if (!fullscreen && c->isfullscreen) {
-		/* Remove fullscreen state */
-		XChangeProperty(dpy, c->win, netatom[NetWMState],
-			XA_ATOM, 32, PropModeReplace,
-			(unsigned char *)0, 0);
-
+	} else if (!fullscreen && c->isfullscreen){
+		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
+			PropModeReplace, (unsigned char*)0, 0);
 		c->isfullscreen = 0;
-		c->isfloating = c->oldstate;
-		c->bw = c->oldbw;
-
-		/* Restore previous geometry */
-		c->x = c->oldx;
-		c->y = c->oldy;
-		c->w = c->oldw;
-		c->h = c->oldh;
-
-		resizeclient(c, c->x, c->y, c->w, c->h);
-		arrange(c->mon);
 	}
 }
 
+Layout *last_layout;
 void
-togglefullscr(const Arg *arg)
+fullscreen(const Arg *arg)
 {
-	if (selmon->sel)
-		setfullscreen(selmon->sel, !selmon->sel->isfullscreen);
+	if (selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt] != &layouts[2]) {
+		for(last_layout = (Layout *)layouts; last_layout != selmon->lt[selmon->sellt]; last_layout++);
+		setlayout(&((Arg) { .v = &layouts[2] }));
+		if (selmon->showbar)
+			togglebar(arg);
+	} else {
+		setlayout(&((Arg) { .v = last_layout }));
+		if (!selmon->showbar)
+			togglebar(arg);
+	}
 }
 
 void
