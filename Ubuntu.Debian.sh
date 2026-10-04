@@ -1,10 +1,11 @@
+```bash
 #!/usr/bin/env bash
 
 # ============================================================
 # KCMW Suckless Desktop Installer
-# Ubuntu 26.04 LTS | dwm + slstatus + st + tabbed
+# Ubuntu / Debian Linux | dwm + slstatus + st + tabbed
 #
-# Source: /mnt/WISDOM/MyApps/dwm/suckless
+# Source: ~/Templates/2kcmw57-dwm+suckless2.8
 # ============================================================
 
 set -Eeuo pipefail
@@ -59,20 +60,30 @@ error() {
 trap 'error "Installation failed at line $LINENO"' ERR
 
 # -------------------------
-# Check Ubuntu 26.04
+# Check Ubuntu / Debian
 # -------------------------
 
-if [[ -r /etc/os-release ]]; then
-    # shellcheck disable=SC1091
-    . /etc/os-release
+if [[ ! -f /etc/os-release ]]; then
+    error "Cannot determine operating system."
+    exit 1
 fi
 
-if [[ "${ID:-}" != "ubuntu" || "${VERSION_ID:-}" != "26.04" ]]; then
-    warn "This installer is intended for Ubuntu 26.04 (detected: ${PRETTY_NAME:-unknown})."
-    read -rp "Continue anyway? [y/N]: " answer
+source /etc/os-release
 
-    [[ "$answer" =~ ^[Yy]$ ]] || exit 1
-fi
+case "${ID:-}" in
+    ubuntu|debian)
+        success "Detected $PRETTY_NAME"
+        ;;
+    linuxmint|pop|zorin|elementary)
+        success "Detected Ubuntu/Debian-based system: $PRETTY_NAME"
+        ;;
+    *)
+        warn "This installer is intended for Ubuntu/Debian-based Linux."
+        read -rp "Continue anyway? [y/N]: " answer
+
+        [[ "$answer" =~ ^[Yy]$ ]] || exit 1
+        ;;
+esac
 
 # -------------------------
 # Check source directory
@@ -102,68 +113,44 @@ success "All Suckless projects found."
 # Install dependencies
 # -------------------------
 
+info "Updating package lists..."
+
+sudo apt update
+
 info "Installing build dependencies..."
 
-# An array is used so comments can sit between groups
-# (comments inside a backslash-continued command break it).
-PACKAGES=(
-    # Toolchain
-    build-essential
-    git
-    pkgconf
-
-    # X11 development libraries
-    libx11-dev
-    libxft-dev
-    libxinerama-dev
-    libxrender-dev
-    libxrandr-dev
-    libxext-dev
-    libxfixes-dev
-    libxdamage-dev
-    libxcomposite-dev
-    libxcursor-dev
-    libxres-dev
-    libfreetype-dev
-    libfontconfig-dev
-    libdrm-dev
-
-    # Extra libs needed by some dwm patches (e.g. swallow)
-    libx11-xcb-dev
-    libxcb1-dev
-    libxcb-res0-dev
-
-    # Window manager / desktop utilities
-    dunst
-    picom
-    rofi
-    sxhkd
-    feh
-    maim
-
-    # X11
-    xserver-xorg
-    xinit
+sudo apt install -y \
+    build-essential \
+    gcc \
+    make \
+    git \
+    pkg-config \
+    libimlib2-dev \
+    thunar \
+    geany \
+    libx11-dev \
+    libxft-dev \
+    libxinerama-dev \
+    libxrender-dev \
+    libxrandr-dev \
+    libxext-dev \
+    libxfixes-dev \
+    libxdamage-dev \
+    libxcomposite-dev \
+    libxcursor-dev \
+    libxres-dev \
+    libfreetype6-dev \
+    libfontconfig1-dev \
+    libdrm-dev \
+    libnotify-bin \
+    dunst \
+    picom \
+    rofi \
+    sxhkd \
+    feh \
+    xserver-xorg \
+    xinit \
     xauth
-
-    # Useful system utilities
-    xclip
-    x11-xserver-utils   # provides xrandr, xset, xsetroot
-
-    # Terminal / file utilities
-    alacritty
-    thunar
-
-    # Fonts / icons
-    fontconfig
-    fonts-dejavu-core
-    fonts-dejavu-extra
-    fonts-noto-core
-    fonts-noto-color-emoji
-)
-
-sudo apt-get update
-sudo apt-get install -y "${PACKAGES[@]}"
 
 success "Dependencies installed."
 
@@ -353,7 +340,6 @@ if ! grep -qF 'export PATH="$HOME/.local/bin:$PATH"' \
 
 fi
 
-
 # -------------------------
 # Create dwm session
 # -------------------------
@@ -373,6 +359,14 @@ DesktopNames=dwm
 EOF
 
 success "dwm session created."
+
+# -------------------------
+# Update desktop database
+# -------------------------
+
+if command -v update-desktop-database >/dev/null 2>&1; then
+    sudo update-desktop-database /usr/share/applications 2>/dev/null || true
+fi
 
 # -------------------------
 # Verify installation
@@ -417,7 +411,8 @@ echo "  $BACKUP_DIR"
 echo
 echo "Next steps:"
 echo "  1. Log out of GNOME."
-echo "  2. Select dwm from the login screen (gear icon)."
+echo "  2. Select dwm from the login screen."
 echo "  3. Log in."
 echo
 echo "============================================================"
+```
