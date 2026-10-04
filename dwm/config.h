@@ -94,11 +94,11 @@ static const char *colors[][3] = {
    TAGGING / LAUNCHERS / AUTOSTART
    ================================================== */
 static char *tags[] = {
-    "󰣇",   /* Terminal */
+    "",   /* Terminal */
     "󰈹",   /* Browser */
-    "",   /* Music */
-    "󰇮",   /* Files */
-    ""    /* Settings */
+    "󰝚",   /* Music */
+    "",   /* Files */
+    ""    /* Settings */
 };
 
 /* Tag color schemes mapping */
